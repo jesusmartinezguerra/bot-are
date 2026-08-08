@@ -32,7 +32,27 @@
       "Bash(cp /c/SAMBU/bot-are/mql5/Experts/ARE_TRADER/Include/ARE_Common.mqh /c/Users/Peter/AppData/Roaming/MetaQuotes/Terminal/D0E8209F77C8CF37AD8BF550E51FF075/MQL5/Experts/ARE_TRADER/Include/)",
       "Bash(TERM=\"/c/Users/Peter/AppData/Roaming/MetaQuotes/Terminal/D0E8209F77C8CF37AD8BF550E51FF075\" *)",
       "Bash(\"/c/Users/Peter/AppData/Local/Programs/Python/Python312/python.exe\" -m unittest test_are_analyzer -v)",
-      "Bash(git branch *)"
+      "Bash(git branch *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git config *)",
+      "Bash(git push *)",
+      "Bash(git count-objects *)",
+      "Bash(git rev-list *)",
+      "Bash(git cat-file *)",
+      "Bash(sort -k3 -n -r)",
+      "Bash(gh auth *)",
+      "Bash(gh --version)",
+      "Bash(find \"C:/Users\" -iname \"ARE_Trader.mq5\" 2>/dev/null)",
+      "Bash(find \"C:/SAMBU\" -iname \"*.mq5\" 2>/dev/null | head -50)",
+      "Bash(mkdir -p /c/Users/Peter/AppData/Roaming/MetaQuotes/Terminal/D0E8209F77C8CF37AD8BF550E51FF075/MQL5/Scripts/codex_tests)",
+      "Bash(cp /c/SAMBU/bot-are/mql5/Scripts/Test_FreezeHysteresis.mq5 /c/Users/Peter/AppData/Roaming/MetaQuotes/Terminal/D0E8209F77C8CF37AD8BF550E51FF075/MQL5/Scripts/codex_tests/)",
+      "Bash(sed -i 's#\\\\.\\\\.\\\\\\\\\\\\\\\\Experts\\\\\\\\\\\\\\\\ARE_TRADER\\\\\\\\\\\\\\\\Include\\\\\\\\\\\\\\\\ARE_Common\\\\.mqh#..\\\\\\\\..\\\\\\\\Experts\\\\\\\\ARE_TRADER\\\\\\\\Include\\\\\\\\ARE_Common.mqh#' /c/Users/Peter/AppData/Roaming/MetaQuotes/Terminal/D0E8209F77C8CF37AD8BF550E51FF075/MQL5/Scripts/codex_tests/Test_FreezeHysteresis.mq5)",
+      "Bash(rm -rf /c/Users/Peter/AppData/Roaming/MetaQuotes/Terminal/D0E8209F77C8CF37AD8BF550E51FF075/MQL5/Scripts/codex_tests)",
+      "Bash(cp /c/SAMBU/bot-are/mql5/Scripts/Test_FreezeHysteresis.mq5 /c/Users/Peter/AppData/Roaming/MetaQuotes/Terminal/D0E8209F77C8CF37AD8BF550E51FF075/MQL5/Scripts/)",
+      "Bash(mkdir -p /c/Users/Peter/AppData/Roaming/MetaQuotes/Terminal/D0E8209F77C8CF37AD8BF550E51FF075/MQL5/config)",
+      "Bash(cat)",
+      "Bash(cat > *)",
+      "Bash(iconv -f UTF-16LE -t UTF-8)"
     ]
   }
 }

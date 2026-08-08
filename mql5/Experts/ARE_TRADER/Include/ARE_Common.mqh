@@ -52,7 +52,45 @@ struct ARE_Scores
    double last_close;
    double current_spread_price;
    int    bars_used;
+   bool   frozen;
   };
+
+// Per-symbol Freeze/Unfreeze hysteresis (spec section 22). WDS crossing the
+// freeze threshold latches FREEZE; only WDS at or below the unfreeze
+// threshold releases it. State lives only for the current EA run/backtest -
+// it is not persisted across terminal restarts.
+struct ARE_FreezeState
+  {
+   string symbol;
+   bool   frozen;
+  };
+
+ARE_FreezeState g_are_freeze_states[];
+
+int ARE_FindFreezeSlot(const string symbol)
+  {
+   for(int i=0;i<ArraySize(g_are_freeze_states);i++)
+      if(g_are_freeze_states[i].symbol==symbol)
+         return i;
+   const int slot=ArraySize(g_are_freeze_states);
+   ArrayResize(g_are_freeze_states,slot+1);
+   g_are_freeze_states[slot].symbol=symbol;
+   g_are_freeze_states[slot].frozen=false;
+   return slot;
+  }
+
+bool ARE_UpdateFreezeState(const string symbol,const double wds,const double freeze_threshold,const double unfreeze_threshold)
+  {
+   const int slot=ARE_FindFreezeSlot(symbol);
+   if(g_are_freeze_states[slot].frozen)
+     {
+      if(wds<=unfreeze_threshold)
+         g_are_freeze_states[slot].frozen=false;
+     }
+   else if(wds>=freeze_threshold)
+      g_are_freeze_states[slot].frozen=true;
+   return g_are_freeze_states[slot].frozen;
+  }
 
 struct ARE_GridPlan
   {

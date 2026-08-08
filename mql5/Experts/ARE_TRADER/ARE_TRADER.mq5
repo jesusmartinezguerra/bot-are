@@ -269,7 +269,7 @@ bool ARE_MakeGridPlan(const ARE_SymbolSpec &spec,const ARE_Scores &scores,const 
    ZeroMemory(plan);
    if(!spec.valid || InpMaxGridDepth<1 || InpMinGridDistanceTicks<1 || InpMaxGridDistanceTicks<InpMinGridDistanceTicks)
      { plan.reason="INVALID_GRID_CONFIGURATION"; return false; }
-   if(scores.wds>=InpWDSFreezeThreshold)
+   if(scores.frozen)
      { plan.reason="WDS_FREEZE"; return false; }
    if(basket.exists && basket.floating_pnl<0.0)
      { plan.reason="BASKET_DRAWDOWN_REQUIRES_RECOVERY_ANALYSIS"; return false; }
@@ -319,7 +319,7 @@ ARE_Decision ARE_MakeDecision(const ARE_SymbolSpec &spec,const ARE_Scores &score
      { reason="HARD_DAILY_RISK_LIMIT"; return ARE_EMERGENCY_STOP_DECISION; }
    if(InpMaxSpreadPoints>0 && (int)SymbolInfoInteger(spec.name,SYMBOL_SPREAD)>InpMaxSpreadPoints)
      { reason="MAX_SPREAD"; return ARE_FREEZE_DECISION; }
-   if(scores.wds>=InpWDSFreezeThreshold)
+   if(scores.frozen)
      { reason="WDS_FREEZE_THRESHOLD"; return ARE_FREEZE_DECISION; }
    if(basket.exists && basket.floating_pnl<0.0)
      {
@@ -341,6 +341,9 @@ bool ARE_Assess(const string symbol,ARE_Assessment &assessment)
      { assessment.reason="INVALID_OR_UNAVAILABLE_SYMBOL_SPEC"; assessment.decision=ARE_NO_TRADE; return false; }
    if(!ARE_CalculateScores(symbol,assessment.spec,assessment.scores))
      { assessment.reason="INSUFFICIENT_COMPLETED_M1_BARS"; assessment.decision=ARE_NO_TRADE; return false; }
+   // Computed once per symbol per cycle so Decision and Grid Plan never
+   // disagree about whether this symbol is currently latched in FREEZE.
+   assessment.scores.frozen=ARE_UpdateFreezeState(symbol,assessment.scores.wds,InpWDSFreezeThreshold,InpWDSUnfreezeThreshold);
    if(!ARE_ReadBasket(symbol,assessment.scores,assessment.basket))
      { assessment.reason="BASKET_READ_FAILED"; assessment.decision=ARE_PROTECT_DECISION; return false; }
    assessment.decision=ARE_MakeDecision(assessment.spec,assessment.scores,assessment.basket,assessment.reason);
@@ -350,8 +353,8 @@ bool ARE_Assess(const string symbol,ARE_Assessment &assessment)
 void ARE_Log(const ARE_Assessment &a)
   {
    if(!InpDebugLog) return;
-   PrintFormat("[ARE] Symbol=%s State=%s MRS=%.2f WDS=%.2f REE=%.2f AssetScore=%.2f BasketPositions=%d BasketPnL=%.2f BasketREE=%.2f Equity=%.2f DailyPnL=%.2f DailyBudget=%.2f Decision=%s Reason=%s",
-               a.symbol,ARE_StateText(g_state),a.scores.mrs,a.scores.wds,a.scores.ree_proxy,a.scores.asset_score,
+   PrintFormat("[ARE] Symbol=%s State=%s MRS=%.2f WDS=%.2f Frozen=%s REE=%.2f AssetScore=%.2f BasketPositions=%d BasketPnL=%.2f BasketREE=%.2f Equity=%.2f DailyPnL=%.2f DailyBudget=%.2f Decision=%s Reason=%s",
+               a.symbol,ARE_StateText(g_state),a.scores.mrs,a.scores.wds,(a.scores.frozen ? "true" : "false"),a.scores.ree_proxy,a.scores.asset_score,
                a.basket.positions,a.basket.floating_pnl,a.basket.ree,AccountInfoDouble(ACCOUNT_EQUITY),g_risk.ClosedDailyPnL(),g_risk.DailyBudget(),ARE_DecisionText(a.decision),a.reason);
   }
 
