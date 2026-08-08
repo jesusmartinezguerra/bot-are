@@ -1,0 +1,142 @@
+{
+  "config": {
+    "bar_seconds": 60,
+    "feature_window": 20,
+    "baseline_window": 120,
+    "gap_seconds": 60,
+    "initial_equity": 1000.0,
+    "daily_risk_pct": 0.01,
+    "expansion_fraction": 0.5,
+    "resolution_fraction": 0.25,
+    "emergency_fraction": 0.25,
+    "mrs_minimum": 55.0,
+    "wds_freeze": 70.0,
+    "wds_unfreeze": 45.0,
+    "ree_minimum": 55.0
+  },
+  "symbols": [
+    {
+      "symbol": "XAUUSD",
+      "quality": {
+        "rows": 9135062,
+        "valid_ticks": 9135062,
+        "duplicate_ticks": 0,
+        "invalid_timestamps": 0,
+        "out_of_order": 0,
+        "impossible_quotes": 0,
+        "suspicious_jumps": 1,
+        "gaps": 21,
+        "max_gap_seconds": 176404.853
+      },
+      "scored_minutes": 28808,
+      "score_means": {
+        "mrs": 30.81,
+        "wds": 37.6,
+        "ree_proxy": 51.99
+      },
+      "regimes": {
+        "RANGE": 14340,
+        "TRANSITION": 12322,
+        "EXTREME_VOLATILITY": 269,
+        "LOW_ACTIVITY": 1729,
+        "TREND_UP_OR_DOWN": 106,
+        "WHIPSAW": 42
+      },
+      "decisions": {
+        "NO_TRADE": 28069,
+        "WATCH": 697,
+        "FREEZE": 42
+      },
+      "risk_budget": {
+        "equity": 1000.0,
+        "daily_budget": 10.0,
+        "expansion_budget": 5.0,
+        "resolution_budget": 2.5,
+        "emergency_budget": 2.5,
+        "status": "Currency conversion, lot sizing and margin are withheld until verified MT5 symbol specifications are supplied."
+      }
+    },
+    {
+      "symbol": "GBPJPY",
+      "quality": {
+        "rows": 3401562,
+        "valid_ticks": 3401562,
+        "duplicate_ticks": 0,
+        "invalid_timestamps": 0,
+        "out_of_order": 0,
+        "impossible_quotes": 0,
+        "suspicious_jumps": 0,
+        "gaps": 77,
+        "max_gap_seconds": 173056.82
+      },
+      "scored_minutes": 30118,
+      "score_means": {
+        "mrs": 30.42,
+        "wds": 38.01,
+        "ree_proxy": 51.41
+      },
+      "regimes": {
+        "TRANSITION": 12938,
+        "RANGE": 15752,
+        "LOW_ACTIVITY": 1045,
+        "EXTREME_VOLATILITY": 158,
+        "WHIPSAW": 133,
+        "TREND_UP_OR_DOWN": 92
+      },
+      "decisions": {
+        "NO_TRADE": 29380,
+        "WATCH": 605,
+        "FREEZE": 133
+      },
+      "risk_budget": {
+        "equity": 1000.0,
+        "daily_budget": 10.0,
+        "expansion_budget": 5.0,
+        "resolution_budget": 2.5,
+        "emergency_budget": 2.5,
+        "status": "Currency conversion, lot sizing and margin are withheld until verified MT5 symbol specifications are supplied."
+      }
+    },
+    {
+      "symbol": "USDJPY",
+      "quality": {
+        "rows": 2201188,
+        "valid_ticks": 2201188,
+        "duplicate_ticks": 0,
+        "invalid_timestamps": 0,
+        "out_of_order": 0,
+        "impossible_quotes": 0,
+        "suspicious_jumps": 0,
+        "gaps": 186,
+        "max_gap_seconds": 172833.639
+      },
+      "scored_minutes": 30109,
+      "score_means": {
+        "mrs": 31.3,
+        "wds": 37.76,
+        "ree_proxy": 51.78
+      },
+      "regimes": {
+        "RANGE": 13988,
+        "TRANSITION": 13394,
+        "EXTREME_VOLATILITY": 242,
+        "TREND_UP_OR_DOWN": 124,
+        "LOW_ACTIVITY": 2241,
+        "WHIPSAW": 120
+      },
+      "decisions": {
+        "NO_TRADE": 29147,
+        "WATCH": 842,
+        "FREEZE": 120
+      },
+      "risk_budget": {
+        "equity": 1000.0,
+        "daily_budget": 10.0,
+        "expansion_budget": 5.0,
+        "resolution_budget": 2.5,
+        "emergency_budget": 2.5,
+        "status": "Currency conversion, lot sizing and margin are withheld until verified MT5 symbol specifications are supplied."
+      }
+    }
+  ]
+}

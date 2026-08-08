@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(unzip -l HISTDATA_COM_ASCII_XAUUSD_T202601.zip)",
+      "PowerShell(winget --version)",
+      "PowerShell(winget install --id Python.Python.3.12 -e --source winget --accept-package-agreements --accept-source-agreements)",
+      "PowerShell($env:Path = [System.Environment]::GetEnvironmentVariable\\(\"Path\",\"Machine\"\\) + \";\" + [System.Environment]::GetEnvironmentVariable\\(\"Path\",\"User\"\\); python --version; py --version)",
+      "Read(//c/Users/Peter/AppData/Local/Programs/Python//**)",
+      "Read(//c/Program Files/**)",
+      "Bash(where python *)",
+      "Bash(\"/c/Users/Peter/AppData/Local/Programs/Python/Python312/python.exe\" --version)",
+      "Bash(find \"C:\\\\SAMBU\" -maxdepth 6 -iname \"interface.py\" -o -iname \"MQL5\" -type d 2>/dev/null | head -50)",
+      "Read(//c/Users/Peter/AppData/Roaming/MetaQuotes/Terminal/**)",
+      "Bash(\"/c/Users/Peter/AppData/Local/Programs/Python/Python312/python.exe\" -m pip show MetaTrader5)",
+      "Bash(find \"C:\\\\Users\" \"C:\\\\SAMBU\" -iname \"ARE_TRADER.mq5\" -o -iname \"ARE_ANALYZER*\" -o -iname \"*.mqh\" -ipath \"*ARE*\" 2>/dev/null | grep -v \"Recycle.Bin\")",
+      "Bash(cp -r 'C:\\\\Users\\\\Peter\\\\Documents\\\\Codex\\\\2026-08-07\\\\files-mentioned-by-the-user-histdata\\\\outputs/ARE_ANALYZER/.' 'C:\\\\SAMBU\\\\bot-are/analyzer/')",
+      "Bash(cp 'C:\\\\Users\\\\Peter\\\\Documents\\\\Codex\\\\2026-08-07\\\\files-mentioned-by-the-user-histdata\\\\outputs/ARE_TRADER/ARE_TRADER.mq5' 'C:\\\\SAMBU\\\\bot-are/mql5/Experts/')",
+      "Bash(cp 'C:\\\\Users\\\\Peter\\\\Documents\\\\Codex\\\\2026-08-07\\\\files-mentioned-by-the-user-histdata\\\\outputs/ARE_TRADER/Include/ARE_Common.mqh' 'C:\\\\SAMBU\\\\bot-are/mql5/Include/')",
+      "Bash(cp 'C:\\\\Users\\\\Peter\\\\Documents\\\\Codex\\\\2026-08-07\\\\files-mentioned-by-the-user-histdata\\\\outputs/ARE_TRADER/README.md' 'C:\\\\SAMBU\\\\bot-are/mql5/README.md')",
+      "Bash(cp 'C:\\\\Users\\\\Peter\\\\Documents\\\\Codex\\\\2026-08-07\\\\files-mentioned-by-the-user-histdata\\\\outputs/ARE_TRADER/compile.log' 'C:\\\\SAMBU\\\\bot-are/mql5/compile.log')",
+      "Bash(git ls-remote *)",
+      "Bash(echo \"exit code: $?\")",
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(git remote *)",
+      "Bash(git reset *)",
+      "Bash(cp __TRACKED_VAR__/ARE_TRADER.mq5 'C:\\\\SAMBU\\\\bot-are/mql5/Experts/ARE_TRADER/')",
+      "Bash(cp __TRACKED_VAR__/Include/ARE_Common.mqh 'C:\\\\SAMBU\\\\bot-are/mql5/Experts/ARE_TRADER/Include/')",
+      "Bash(cp __TRACKED_VAR__/README.md 'C:\\\\SAMBU\\\\bot-are/mql5/Experts/ARE_TRADER/README.md')",
+      "Bash(mkdir -p /c/Users/Peter/AppData/Roaming/MetaQuotes/Terminal/D0E8209F77C8CF37AD8BF550E51FF075/MQL5/Experts/ARE_TRADER/Include)",
+      "Bash(cp /c/SAMBU/bot-are/mql5/Experts/ARE_TRADER/ARE_TRADER.mq5 /c/Users/Peter/AppData/Roaming/MetaQuotes/Terminal/D0E8209F77C8CF37AD8BF550E51FF075/MQL5/Experts/ARE_TRADER/)",
+      "Bash(cp /c/SAMBU/bot-are/mql5/Experts/ARE_TRADER/Include/ARE_Common.mqh /c/Users/Peter/AppData/Roaming/MetaQuotes/Terminal/D0E8209F77C8CF37AD8BF550E51FF075/MQL5/Experts/ARE_TRADER/Include/)",
+      "Bash(TERM=\"/c/Users/Peter/AppData/Roaming/MetaQuotes/Terminal/D0E8209F77C8CF37AD8BF550E51FF075\" *)",
+      "Bash(\"/c/Users/Peter/AppData/Local/Programs/Python/Python312/python.exe\" -m unittest test_are_analyzer -v)",
+      "Bash(git branch *)"
+    ]
+  }
+}

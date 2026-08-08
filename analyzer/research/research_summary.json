@@ -1,0 +1,34 @@
+{
+  "observations": 89035,
+  "scenario_minutes": {
+    "GBPJPY:LOW_LIQUIDITY": 473,
+    "GBPJPY:STRONG_TREND_DOWN": 7,
+    "GBPJPY:STRONG_TREND_UP": 94,
+    "GBPJPY:TIGHT_RANGE": 572,
+    "GBPJPY:TRANSITION": 27009,
+    "GBPJPY:WHIPSAW": 133,
+    "GBPJPY:WIDE_RANGE": 1830,
+    "USDJPY:DEEP_WHIPSAW": 1,
+    "USDJPY:LOW_LIQUIDITY": 995,
+    "USDJPY:STRONG_TREND_DOWN": 24,
+    "USDJPY:STRONG_TREND_UP": 154,
+    "USDJPY:TIGHT_RANGE": 1246,
+    "USDJPY:TRANSITION": 25634,
+    "USDJPY:WHIPSAW": 119,
+    "USDJPY:WIDE_RANGE": 1936,
+    "XAUUSD:LOW_LIQUIDITY": 802,
+    "XAUUSD:STRONG_TREND_DOWN": 5,
+    "XAUUSD:STRONG_TREND_UP": 148,
+    "XAUUSD:TIGHT_RANGE": 927,
+    "XAUUSD:TRANSITION": 24971,
+    "XAUUSD:WHIPSAW": 42,
+    "XAUUSD:WIDE_RANGE": 1913
+  },
+  "threshold_rows": 288,
+  "stress_rows": 81,
+  "limitations": [
+    "Threshold tables show gate frequency only, not profitability or an optimal parameter.",
+    "Stress tests adjust MRS/WDS gate sensitivity in normalized score units; they are not broker-fill, margin, or PnL simulations.",
+    "No broker contract, tick value, commission, leverage, or timezone has been inferred."
+  ]
+}
