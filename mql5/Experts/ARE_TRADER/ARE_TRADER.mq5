@@ -333,7 +333,7 @@ bool ARE_MakeGridPlan(const ARE_SymbolSpec &spec,const ARE_Scores &scores,const 
    return true;
   }
 
-ARE_Decision ARE_MakeDecision(const ARE_SymbolSpec &spec,const ARE_Scores &scores,const ARE_BasketSnapshot &basket,string &reason)
+ARE_Decision ARE_MakeDecision(const ARE_SymbolSpec &spec,const ARE_Scores &scores,const ARE_BasketSnapshot &basket,const ARE_GridPlan &plan,string &reason)
   {
    if(g_risk.HardDailyStop())
      { reason="HARD_DAILY_RISK_LIMIT"; return ARE_EMERGENCY_STOP_DECISION; }
@@ -349,7 +349,18 @@ ARE_Decision ARE_MakeDecision(const ARE_SymbolSpec &spec,const ARE_Scores &score
       return ARE_PROTECT_DECISION;
      }
    if(scores.mrs>=InpMRSThreshold && scores.ree_proxy>=InpREEThreshold)
-     { reason="MRS_AND_REE_GATE"; return ARE_WATCH_ONLY; }
+     {
+      // A basket already at drawdown was intercepted above. Reaching here
+      // with basket.ladder_level_count>0 means a still-nonnegative,
+      // still-under-safe-depth ladder that is allowed to keep building -
+      // this is continuing the SAME opening sequence, not martingale
+      // recovery (spec section 20 concerns adding exposure to recover a
+      // loss, which is excluded above).
+      if(plan.valid && basket.ladder_level_count<plan.safe_depth)
+        { reason="MRS_REE_GATE_AND_VALID_PLAN"; return ARE_EXPAND; }
+      reason="MRS_AND_REE_GATE";
+      return ARE_WATCH_ONLY;
+     }
    reason="NO_QUALIFYING_SETUP";
    return ARE_NO_TRADE;
   }
@@ -366,7 +377,10 @@ bool ARE_Assess(const string symbol,ARE_Assessment &assessment)
    assessment.scores.frozen=ARE_UpdateFreezeState(symbol,assessment.scores.wds,InpWDSFreezeThreshold,InpWDSUnfreezeThreshold);
    if(!ARE_ReadBasket(symbol,assessment.scores,assessment.basket))
      { assessment.reason="BASKET_READ_FAILED"; assessment.decision=ARE_PROTECT_DECISION; return false; }
-   assessment.decision=ARE_MakeDecision(assessment.spec,assessment.scores,assessment.basket,assessment.reason);
+   // Computed before the decision (not after, as before this task) so
+   // EXPAND can be gated on plan validity and remaining ladder depth.
+   ARE_MakeGridPlan(assessment.spec,assessment.scores,assessment.basket,assessment.plan);
+   assessment.decision=ARE_MakeDecision(assessment.spec,assessment.scores,assessment.basket,assessment.plan,assessment.reason);
    return true;
   }
 
@@ -412,14 +426,13 @@ void ARE_Evaluate(void)
    else if(best.decision==ARE_FREEZE_DECISION) g_state=ARE_FREEZE;
    else if(best.decision==ARE_RESOLVE_DECISION) g_state=ARE_RECOVERY_ANALYSIS;
    else if(best.decision==ARE_PROTECT_DECISION) g_state=ARE_PROTECT;
+   else if(best.decision==ARE_EXPAND) g_state=ARE_EXPANSION;
    else if(best.decision==ARE_WATCH_ONLY) g_state=ARE_WATCH;
    else g_state=ARE_IDLE;
-   ARE_GridPlan plan;
-   ARE_MakeGridPlan(best.spec,best.scores,best.basket,plan);
    if(InpDebugLog)
       PrintFormat("[ARE] GridPlan Symbol=%s Valid=%s Depth=%d RiskCapacity=%d MarginCapacity=%d VolatilityCapacity=%d Volume=%.8f Distance=%.8f Reason=%s",
-                  best.symbol,(plan.valid ? "true" : "false"),plan.safe_depth,plan.risk_capacity,plan.margin_capacity,plan.volatility_capacity,plan.volume,plan.grid_distance,plan.reason);
-   ARE_RenderPanel(best,plan);
+                  best.symbol,(best.plan.valid ? "true" : "false"),best.plan.safe_depth,best.plan.risk_capacity,best.plan.margin_capacity,best.plan.volatility_capacity,best.plan.volume,best.plan.grid_distance,best.plan.reason);
+   ARE_RenderPanel(best,best.plan);
   }
 
 int OnInit(void)

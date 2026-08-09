@@ -150,6 +150,7 @@ struct ARE_Assessment
    ARE_SymbolSpec spec;
    ARE_Scores   scores;
    ARE_BasketSnapshot basket;
+   ARE_GridPlan plan;
    ARE_Decision decision;
    string       reason;
   };
