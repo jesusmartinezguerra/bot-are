@@ -110,7 +110,7 @@ Both `EXPAND` decisions add to the **same basket**: `BasketPositions` goes
   observation-only run's Grid Plan validity count (30,511 of 43,200 evaluations
   had a valid grid plan) would suggest, but the `MRS_REE_GATE` is not the
   reason for most of that gap. Both the Grid Plan (`ARE_MakeGridPlan`) and the
-  Decision Engine (`ARE_DecideAction`) check `basket.exists &&
+  Decision Engine (`ARE_MakeDecision`) check `basket.exists &&
   basket.floating_pnl<0.0` *before* ever reaching the MRS/REE gate - when a
   real basket exists and is floating negative, the code routes straight to
   `RESOLVE`/`PROTECT` and the `MRS_REE_GATE` branch is never evaluated for
