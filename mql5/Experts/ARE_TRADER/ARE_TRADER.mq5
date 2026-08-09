@@ -348,6 +348,19 @@ bool ARE_PlaceNextGridLevel(const ARE_SymbolSpec &spec,const ARE_Scores &scores,
    double price;
    if(!ARE_NextLadderLevel(scores,basket,plan,order_type,price))
      { result_reason="SAFE_DEPTH_REACHED"; return false; }
+   // ARE_NextLadderLevel anchors the first level to the last completed M1
+   // bar's close, which can be stale by the time this timer-driven order
+   // actually reaches the broker. Clamp against the current tick so a
+   // trending market can't produce a stop price the broker rejects as too
+   // close (or on the wrong side) of the live Ask/Bid.
+   MqlTick current_tick;
+   if(!SymbolInfoTick(spec.name,current_tick))
+     { result_reason="NO_CURRENT_TICK"; return false; }
+   const double min_broker_distance=MathMax((double)spec.stops_level,(double)spec.freeze_level)*spec.point;
+   if(order_type==ORDER_TYPE_BUY_STOP)
+      price=MathMax(price,current_tick.ask+min_broker_distance);
+   else
+      price=MathMin(price,current_tick.bid-min_broker_distance);
    price=NormalizeDouble(price,(int)SymbolInfoInteger(spec.name,SYMBOL_DIGITS));
    g_trade.SetExpertMagicNumber(InpMagicNumber);
    const bool sent=(order_type==ORDER_TYPE_BUY_STOP ?
@@ -465,8 +478,12 @@ void ARE_Evaluate(void)
      {
       string exec_reason;
       const bool placed=ARE_PlaceNextGridLevel(best.spec,best.scores,best.basket,best.plan,exec_reason);
-      if(InpDebugLog)
-         PrintFormat("[ARE] Execution Symbol=%s Placed=%s Reason=%s",best.symbol,(placed?"true":"false"),exec_reason);
+      // A failed real-order-send must never be silent, even with debug
+      // logging off. Success logging stays gated behind InpDebugLog.
+      if(!placed)
+         PrintFormat("[ARE] Execution Symbol=%s Placed=false Reason=%s",best.symbol,exec_reason);
+      else if(InpDebugLog)
+         PrintFormat("[ARE] Execution Symbol=%s Placed=true Reason=%s",best.symbol,exec_reason);
      }
    ARE_RenderPanel(best,best.plan);
   }
