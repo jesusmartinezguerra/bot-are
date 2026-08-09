@@ -66,10 +66,14 @@ spread, WDS freeze, basket-in-drawdown) and the existing
 that currently returns `ARE_WATCH_ONLY`:
 
 - If, in addition, a freshly computed `ARE_GridPlan.valid==true` **and**
-  `basket.positions==0` (no existing position or pending order tagged with
-  `InpMagicNumber` for this symbol) → return `ARE_EXPAND`.
-- Otherwise (plan invalid, or a basket already exists) → stays
-  `ARE_WATCH_ONLY` as today.
+  `basket.ladder_level_count<plan.safe_depth` (the basket's existing count
+  of open positions + pending orders tagged with `InpMagicNumber` for this
+  symbol has not yet reached the plan's computed safe depth) → return
+  `ARE_EXPAND`. This allows repeated `EXPAND` cycles as the ladder builds
+  up toward `safe_depth`, not just a single order the first time a basket
+  is empty.
+- Otherwise (plan invalid, or the ladder has already reached
+  `plan.safe_depth`) → stays `ARE_WATCH_ONLY` as today.
 
 This requires computing the Grid Plan *before* the decision in
 `ARE_Assess`, not after (today `ARE_MakeGridPlan` is called only after the

@@ -153,3 +153,27 @@ Both `EXPAND` decisions add to the **same basket**: `BasketPositions` goes
   and Sharpe ratio (0.10) are statistically meaningless as performance
   indicators - they are reported for completeness only, per the framing
   above.
+- Grid spacing is not guaranteed once price has drifted far from an idle
+  ladder. The second ladder level (Order #3, placed 2026.01.30 04:21:00)
+  was placed at 5156.21, but the ladder's furthest existing level at that
+  point (the first level, filled 2026.01.02 01:35:53) was 4343.61 - a gap
+  of roughly $812, far exceeding the maximum possible `grid_distance`
+  (`InpMaxGridDistanceTicks=2000` * XAUUSD tick size, roughly $20). The
+  first level sat unfilled/idle for about 28 days before the second was
+  placed, during which price moved well past where the intended
+  ladder-distance calculation (furthest level's price + `grid_distance`)
+  would have placed it. The live-tick clamp added in Task 3
+  (`ARE_PlaceNextGridLevel` in `ARE_TRADER.mq5`:
+  `price=MathMax(price,current_tick.ask+min_broker_distance)` for
+  `BUY_STOP`, `MathMin(...)` for `SELL_STOP`) then overrode the ladder
+  spacing to keep the stop price valid relative to the live market, so the
+  order it produced was pinned near the live price and filled almost
+  immediately rather than sitting as a genuinely spaced pending order. The
+  clamp itself is correct and necessary - without it the order would be
+  rejected as an invalid stop price - but its interaction with the lack of
+  any stale-pending-order expiry (there is no mechanism to cancel or
+  re-price a pending level that has sat unfilled for a long time; see the
+  design spec's "Open questions" section on whether existing pending
+  orders should be proactively cancelled or re-priced) means grid spacing
+  can silently collapse after a level sits idle long enough for price to
+  drift far away.
