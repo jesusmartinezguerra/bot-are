@@ -108,9 +108,18 @@ Both `EXPAND` decisions add to the **same basket**: `BasketPositions` goes
 - Only 2 `EXPAND` decisions occurred in the entire month, 28 days apart, both
   on the same basket. This is far fewer ladder-level placements than the
   observation-only run's Grid Plan validity count (30,511 of 43,200 evaluations
-  had a valid grid plan) would suggest - `EXPAND` additionally requires the
-  `MRS_REE_GATE`, which is the actual binding constraint on how often a valid
-  grid plan turns into a placed order at these thresholds. Worth revisiting
+  had a valid grid plan) would suggest, but the `MRS_REE_GATE` is not the
+  reason for most of that gap. Both the Grid Plan (`ARE_MakeGridPlan`) and the
+  Decision Engine (`ARE_DecideAction`) check `basket.exists &&
+  basket.floating_pnl<0.0` *before* ever reaching the MRS/REE gate - when a
+  real basket exists and is floating negative, the code routes straight to
+  `RESOLVE`/`PROTECT` and the `MRS_REE_GATE` branch is never evaluated for
+  that tick. The 28-day gap between the two `EXPAND` events is explained
+  primarily by this: the basket opened on 2026.01.02 immediately went net
+  negative and sat in `PROTECT`/`RESOLVE` (see the bullet above - 3,357
+  `PROTECT` + 12 `RESOLVE` evaluations) rather than by `MRS_REE_GATE`
+  failures. The gate only becomes reachable again once the basket
+  either doesn't exist or is no longer floating negative. Worth revisiting
   once the Calibration Engine (spec section 41) exists.
 - The second ladder level (2026.01.30, 0.12 lot) is an order of magnitude
   smaller than the first (1.00 lot) despite the basket being in a large
