@@ -3,6 +3,7 @@
 #property description "Adaptive Regime Engine - safety-gated MT5 observation foundation"
 
 #include "Include/ARE_Common.mqh"
+#include <Trade\Trade.mqh>
 
 input ARE_OperatingMode InpOperatingMode       = ARE_ASSET_POOL;
 input string             InpSingleSymbol        = "XAUUSD";
@@ -33,6 +34,7 @@ input bool               InpEnableExecution     = false;   // deliberately false
 input bool               InpDebugLog             = true;
 
 ARE_State g_state=ARE_IDLE;
+CTrade    g_trade;
 
 class CARE_RiskEngine
   {
@@ -333,6 +335,33 @@ bool ARE_MakeGridPlan(const ARE_SymbolSpec &spec,const ARE_Scores &scores,const 
    return true;
   }
 
+// Side-effecting: sends the next ladder level via CTrade. Execution is
+// double-gated (input + Tester-only) so attaching this EA to any live or
+// demo chart never sends an order, regardless of input values.
+bool ARE_PlaceNextGridLevel(const ARE_SymbolSpec &spec,const ARE_Scores &scores,const ARE_BasketSnapshot &basket,const ARE_GridPlan &plan,string &result_reason)
+  {
+   if(!InpEnableExecution)
+     { result_reason="EXECUTION_DISABLED_BY_INPUT"; return false; }
+   if(!MQLInfoInteger(MQL_TESTER))
+     { result_reason="EXECUTION_BLOCKED_OUTSIDE_TESTER"; return false; }
+   ENUM_ORDER_TYPE order_type;
+   double price;
+   if(!ARE_NextLadderLevel(scores,basket,plan,order_type,price))
+     { result_reason="SAFE_DEPTH_REACHED"; return false; }
+   price=NormalizeDouble(price,(int)SymbolInfoInteger(spec.name,SYMBOL_DIGITS));
+   g_trade.SetExpertMagicNumber(InpMagicNumber);
+   const bool sent=(order_type==ORDER_TYPE_BUY_STOP ?
+                     g_trade.BuyStop(plan.volume,price,spec.name) :
+                     g_trade.SellStop(plan.volume,price,spec.name));
+   if(!sent)
+     {
+      result_reason=StringFormat("ORDER_SEND_FAILED_%d_%s",g_trade.ResultRetcode(),g_trade.ResultRetcodeDescription());
+      return false;
+     }
+   result_reason="LEVEL_PLACED";
+   return true;
+  }
+
 ARE_Decision ARE_MakeDecision(const ARE_SymbolSpec &spec,const ARE_Scores &scores,const ARE_BasketSnapshot &basket,const ARE_GridPlan &plan,string &reason)
   {
    if(g_risk.HardDailyStop())
@@ -402,7 +431,7 @@ void ARE_RenderPanel(const ARE_Assessment &a,const ARE_GridPlan &plan)
            "Grid plan: ",(plan.valid ? "depth "+IntegerToString(plan.safe_depth)+" / volume "+DoubleToString(plan.volume,2)+" / distance "+DoubleToString(plan.grid_distance,_Digits) : plan.reason),"\n",
            "Daily PnL / Budget: ",DoubleToString(g_risk.ClosedDailyPnL(),2)," / ",DoubleToString(g_risk.DailyBudget(),2),"\n",
            "Decision: ",ARE_DecisionText(a.decision),"\n",
-           "Execution: ",(InpEnableExecution ? "NOT IMPLEMENTED - BLOCKED" : "OBSERVATION ONLY"));
+           "Execution: ",(InpEnableExecution && MQLInfoInteger(MQL_TESTER) ? "ENABLED (TESTER)" : (InpEnableExecution ? "BLOCKED (NOT IN TESTER)" : "DISABLED BY INPUT")));
   }
 
 void ARE_Evaluate(void)
@@ -432,6 +461,13 @@ void ARE_Evaluate(void)
    if(InpDebugLog)
       PrintFormat("[ARE] GridPlan Symbol=%s Valid=%s Depth=%d RiskCapacity=%d MarginCapacity=%d VolatilityCapacity=%d Volume=%.8f Distance=%.8f Reason=%s",
                   best.symbol,(best.plan.valid ? "true" : "false"),best.plan.safe_depth,best.plan.risk_capacity,best.plan.margin_capacity,best.plan.volatility_capacity,best.plan.volume,best.plan.grid_distance,best.plan.reason);
+   if(best.decision==ARE_EXPAND)
+     {
+      string exec_reason;
+      const bool placed=ARE_PlaceNextGridLevel(best.spec,best.scores,best.basket,best.plan,exec_reason);
+      if(InpDebugLog)
+         PrintFormat("[ARE] Execution Symbol=%s Placed=%s Reason=%s",best.symbol,(placed?"true":"false"),exec_reason);
+     }
    ARE_RenderPanel(best,best.plan);
   }
 

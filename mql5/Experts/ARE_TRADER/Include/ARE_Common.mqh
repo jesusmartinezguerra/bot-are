@@ -144,6 +144,25 @@ void ARE_TrackLadderLevel(ARE_BasketSnapshot &basket,const bool is_buy_side,cons
      }
   }
 
+// Pure: given the current ladder state, returns the direction and price of
+// the next level to place, or false if safe_depth is already reached. No
+// MT5 order/account API calls - the side-effecting order send lives in
+// ARE_TRADER.mq5's ARE_PlaceNextGridLevel, which calls this first.
+bool ARE_NextLadderLevel(const ARE_Scores &scores,const ARE_BasketSnapshot &basket,const ARE_GridPlan &plan,ENUM_ORDER_TYPE &order_type,double &price)
+  {
+   if(basket.ladder_level_count>=plan.safe_depth)
+      return false;
+   if(basket.ladder_level_count==0)
+     {
+      order_type=(scores.direction>=0.0 ? ORDER_TYPE_BUY_STOP : ORDER_TYPE_SELL_STOP);
+      price=(scores.direction>=0.0 ? scores.last_close+plan.grid_distance : scores.last_close-plan.grid_distance);
+      return true;
+     }
+   order_type=(basket.ladder_is_buy_side ? ORDER_TYPE_BUY_STOP : ORDER_TYPE_SELL_STOP);
+   price=(basket.ladder_is_buy_side ? basket.furthest_level_price+plan.grid_distance : basket.furthest_level_price-plan.grid_distance);
+   return true;
+  }
+
 struct ARE_Assessment
   {
    string       symbol;
