@@ -211,7 +211,12 @@ bool ARE_ReadBasket(const string symbol,const ARE_Scores &scores,ARE_BasketSnaps
   {
    ZeroMemory(basket);
    basket.status="NO_BASKET_INSPECTION";
-   if(!InpInspectExistingBaskets)
+   // Inside the Tester, ladder/basket state must always be read accurately
+   // regardless of InpInspectExistingBaskets - the Execution Engine (Task 2
+   // onward) depends on it to avoid re-opening level 1 forever or
+   // overshooting safe_depth. Outside the Tester this stays a cheap no-op
+   // by default, matching the existing observation-only behavior.
+   if(!InpInspectExistingBaskets && !MQLInfoInteger(MQL_TESTER))
       return true;
    double buy_value=0.0,sell_value=0.0;
    for(int i=0;i<PositionsTotal();i++)
@@ -233,6 +238,21 @@ bool ARE_ReadBasket(const string symbol,const ARE_Scores &scores,ARE_BasketSnaps
          basket.margin+=position_margin;
       if(type==POSITION_TYPE_BUY) { basket.buy_volume+=volume; buy_value+=volume*entry; }
       else if(type==POSITION_TYPE_SELL) { basket.sell_volume+=volume; sell_value+=volume*entry; }
+      ARE_TrackLadderLevel(basket,type==POSITION_TYPE_BUY,entry);
+     }
+   for(int i=0;i<OrdersTotal();i++)
+     {
+      const ulong ticket=OrderGetTicket(i);
+      if(ticket==0 || !OrderSelect(ticket))
+         continue;
+      if(OrderGetString(ORDER_SYMBOL)!=symbol || OrderGetInteger(ORDER_MAGIC)!=InpMagicNumber)
+         continue;
+      const long type=OrderGetInteger(ORDER_TYPE);
+      if(type!=ORDER_TYPE_BUY_STOP && type!=ORDER_TYPE_SELL_STOP)
+         continue;
+      const double price=OrderGetDouble(ORDER_PRICE_OPEN);
+      basket.pending_orders++;
+      ARE_TrackLadderLevel(basket,type==ORDER_TYPE_BUY_STOP,price);
      }
    if(!basket.exists)
      { basket.status="NO_MATCHING_BASKET"; return true; }

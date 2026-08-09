@@ -120,7 +120,29 @@ struct ARE_BasketSnapshot
    double distance_to_weighted_entry;
    double ree;
    string status;
+   int    pending_orders;
+   int    ladder_level_count;
+   double furthest_level_price;
+   bool   ladder_is_buy_side;
   };
+
+// Tracks the furthest-out price of a one-directional order ladder as each
+// open position / pending order tagged with our magic number is scanned.
+// Pure: mutates only the struct passed in, no MT5 API calls, safe to unit
+// test standalone.
+void ARE_TrackLadderLevel(ARE_BasketSnapshot &basket,const bool is_buy_side,const double price)
+  {
+   basket.ladder_level_count++;
+   if(basket.ladder_level_count==1)
+     {
+      basket.furthest_level_price=price;
+      basket.ladder_is_buy_side=is_buy_side;
+     }
+   else if(is_buy_side==basket.ladder_is_buy_side)
+     {
+      basket.furthest_level_price=(is_buy_side ? MathMax(basket.furthest_level_price,price) : MathMin(basket.furthest_level_price,price));
+     }
+  }
 
 struct ARE_Assessment
   {
